@@ -2,18 +2,29 @@ import Head from "next/head";
 import React, { useState, useEffect } from "react";
 import { useSpring, animated, config, easings } from "react-spring";
 import { SecretNetworkClient } from "secretjs";
-let contractAddress = "secret1sz0dh5yuqump6my9dxeymg95lsc2uux58m3m62";
+import {
+  SlotTile,
+  CreatTiles,
+  shuffle,
+  SlotViewer,
+} from "../components/slot-comp";
+import { startslot, quary_win_table } from "../crypto_api";
+let contractAddress = "secret16426xrnxfmg7rm63pvz64g2zvgjmmvh2q3lfk2"; //"secret1elj2y3c6fk26qw9xu8krzh2rtj2en0jyzea9gj";
 let codeHash =
-  "0ff0411a76cc552e3ca91a67dad16785018b1bd38af2ae8d78612c64e2c4000c";
+  "17909f8ddefe8943194c40e833f08d6c8f7e0aac402bc30ec86cda55b790be66";
+let codeid = 43;
+
 export default function Home() {
   const [pool1, setPool1] = useState(false);
   const [pool2, setPool2] = useState(false);
   const [pool3, setPool3] = useState(false);
+  const [slot_balance, setSlotBalance] = useState(false);
+  const [slot_denom, setSlotDenom] = useState(false);
   // for stopping spam clicking exe button that leads to errors
   const [no_double, setNoDouble] = useState(false);
   const [secretjs, setSecretjs] = useState();
   const [entropy, setEntropy] = useState();
-  const [win_table, setWinTable] = useState();
+  const [slot_data_qur, setWinTable] = useState();
 
   const [styles1, api1] = useSpring(() => ({
     from: { y: 0 },
@@ -94,26 +105,25 @@ export default function Home() {
       walletAddress: myAddress,
       encryptionUtils: window.getEnigmaUtils(CHAIN_ID),
     });
-    const win_table = await quary_win_table(secretjs);
+    const win_table = await quary_win_table(
+      contractAddress,
+      codeHash,
+      secretjs
+    );
     console.log(win_table);
     setWinTable(win_table);
     setSecretjs(secretjs);
     //setting so slots got default look
-    setPool1([
-      <SlotTile size="100px" emote={":)"} key="123123" />,
-      <SlotTile size="100px" emote={":)"} key="245213" />,
-      <SlotTile size="100px" emote={":)"} key="42342" />,
-    ]);
-    setPool2([
-      <SlotTile size="100px" emote={":)"} key="234234" />,
-      <SlotTile size="100px" emote={":)"} key="5543" />,
-      <SlotTile size="100px" emote={":)"} key="345345" />,
-    ]);
-    setPool3([
-      <SlotTile size="100px" emote={":)"} key="3453123345" />,
-      <SlotTile size="100px" emote={":)"} key="34123125" />,
-      <SlotTile size="100px" emote={":)"} key="345414345" />,
-    ]);
+    setPool1(CreatTiles(win_table));
+    setPool2(CreatTiles(win_table));
+    setPool3(CreatTiles(win_table));
+    let contr_balance = await secretjs.query.bank.balance({
+      address: contractAddress,
+      denom: "uscrt",
+    });
+    console.log(contr_balance.balance);
+    setSlotDenom(contr_balance.balance.denom);
+    setSlotBalance(contr_balance.balance.amount);
   }, []);
   async function start_slot() {
     if (!secretjs) {
@@ -122,68 +132,90 @@ export default function Home() {
     if (no_double) {
       return;
     }
+    //prevents spamclicking and throwing errors
     setNoDouble(true);
+    // reset animation so it can be re run
     let resetconfig = { to: { y: 0 }, config: { duration: 0 } };
     api1.start(resetconfig);
     api2.start(resetconfig);
     api3.start(resetconfig);
-    console.log(entropy);
+    // sets entropy if user has not provided one
     let entr = entropy;
     if (!entr) {
-      entr = Math.floor(Math.random() * 999999999999);
+      entr = Math.floor(Math.random() * 99999999);
       setEntropy(entr);
     }
-    let slot_result = await startslot(secretjs, entr);
+    let slot_result = await startslot(
+      contractAddress,
+      codeHash,
+      secretjs,
+      entr,
+      slot_data_qur.buyin,
+      slot_denom
+    );
     console.log(slot_result);
-    let tiles1 = CreatTiles();
-    let tiles2 = CreatTiles();
-    let tiles3 = CreatTiles();
-    tiles1 = shuffle(tiles1);
-    tiles1[18] = <SlotTile size="100px" emote={slot_result.value} key="239" />;
-    tiles2 = shuffle(tiles2);
-    tiles2[18] = (
-      <SlotTile size="100px" emote={slot_result.value} key="932323" />
-    );
-    tiles3 = shuffle(tiles3);
-    tiles3[18] = (
-      <SlotTile size="100px" emote={slot_result.value} key="923239" />
-    );
+    let tiles1 = CreatTiles(slot_data_qur);
+    let tiles2 = CreatTiles(slot_data_qur);
+    let tiles3 = CreatTiles(slot_data_qur);
+    if (slot_result == 0) {
+      //when its losing makes sure that ui shows losing SlotTile
+      console.log("lost");
+      let losetable = shuffle(slot_data_qur.win_table);
+      console.log(losetable);
+      tiles1[18] = (
+        <SlotTile size="100px" emote={parseInt(losetable[0])} key="239" />
+      );
+      tiles2 = shuffle(tiles2);
+      // so 3 in a row cant happen
+      let same = losetable[0] == losetable[1] ? 0 : losetable[1];
+      tiles2[18] = (
+        <SlotTile size="100px" emote={parseInt(same)} key="932323" />
+      );
+      tiles3 = shuffle(tiles3);
+      same = losetable[1] == losetable[2] ? 0 : losetable[2];
+      tiles3[18] = (
+        <SlotTile size="100px" emote={parseInt(same)} key="923239" />
+      );
+    } else {
+      //slot won sets so allways is winning slots when contracts says win
+      tiles1 = shuffle(tiles1);
+      tiles1[18] = (
+        <SlotTile size="100px" emote={parseInt(slot_result.value)} key="239" />
+      );
+      tiles2 = shuffle(tiles2);
+      tiles2[18] = (
+        <SlotTile
+          size="100px"
+          emote={parseInt(slot_result.value)}
+          key="932323"
+        />
+      );
+      tiles3 = shuffle(tiles3);
+      tiles3[18] = (
+        <SlotTile
+          size="100px"
+          emote={parseInt(slot_result.value)}
+          key="923239"
+        />
+      );
+    }
     setPool1(tiles1);
     setPool2(tiles2);
     setPool3(tiles3);
-    let time = 600;
+    let time = 2000;
+    let increase = 900;
     // start 3 slotviewer
-    let startconfig = {
-      to: { y: -1700 },
-      config: { duration: 2000, easing: easings.easeOutCubic },
-    };
-    api1.start(startconfig);
-    await new Promise((resolve) => setTimeout(resolve, time));
-    api2.start(startconfig);
-    await new Promise((resolve) => setTimeout(resolve, time));
-    api3.start(startconfig);
-    await new Promise((resolve) => setTimeout(resolve, time * 3));
+    function anim(time) {
+      return {
+        to: { y: -1700 },
+        config: { duration: time, easing: easings.easeOutCubic },
+      };
+    }
+    api1.start(anim(time));
+    api2.start(anim(time + increase));
+    api3.start(anim(time + increase * 2));
     setNoDouble(false);
   }
-  const SlotViewer = (props) => (
-    <div className="s-viewer">
-      <animated.div style={props.style}>
-        <div className="pool">{props.pool}</div>
-      </animated.div>
-      <style jsx>{`
-        .s-viewer {
-          background: #fafafa;
-          height: 300px;
-          width: 98%;
-          margin: 2%;
-          overflow: hidden;
-        }
-        .pool {
-          background-color: #f40a35;
-        }
-      `}</style>
-    </div>
-  );
   if (secretjs) {
     return (
       <div>
@@ -191,13 +223,13 @@ export default function Home() {
           <h1>Secret-Slot 🦥</h1>
 
           <div className="slot_window1">
-            <SlotViewer style={styles1} pool={pool1} />
+            <SlotViewer style={styles1} animated={animated} pool={pool1} />
           </div>
           <div className="slot_window2">
-            <SlotViewer style={styles2} pool={pool2} />
+            <SlotViewer style={styles2} animated={animated} pool={pool2} />
           </div>
           <div className="slot_window3">
-            <SlotViewer style={styles3} pool={pool3} />
+            <SlotViewer style={styles3} animated={animated} pool={pool3} />
           </div>
           <div className="butt">
             <button onMouseDown={() => start_slot()}>
@@ -214,7 +246,11 @@ export default function Home() {
           </div>
           <div className="contr_data">
             <p>
-              {"wintable: " + win_table.win_table}
+              {"wintable(" + slot_denom + "): " + slot_data_qur.win_table}
+              <br></br>
+              {"buyin: " + slot_data_qur.buyin + slot_denom}
+              <br></br>
+              {"slot_balance: " + slot_balance + slot_denom}
               <br></br>
               {"Addres: " + contractAddress}
               <br></br>
@@ -237,7 +273,7 @@ export default function Home() {
               justify-content: center;
               align-items: center;
               font-family: neon;
-              color: #fb4264;
+              color: #ff002f;
               font-size: 70px;
               text-shadow: 0 0 3vw #f40a35;
             }
@@ -272,8 +308,7 @@ export default function Home() {
                 width: 100%;
                 margin-right: 50%;
                 margin-left: 4%;
-                background: red;
-                color: rgb(0, 0, 0);
+                background: rgb(0, 0, 0);
                 font-size: 2em;
                 display: flex;
                 flex-direction: row;
@@ -282,7 +317,7 @@ export default function Home() {
               }
             }
             .contr_data {
-              grid-column: 3/6;
+              grid-column: 3/7;
               grid-row: 5;
               display: flex;
               flex-direction: row;
@@ -305,7 +340,7 @@ export default function Home() {
         <style jsx global>{`
           html,
           body {
-            background: #010a01;
+            background: #121212;
             padding: 0;
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
@@ -328,107 +363,4 @@ export default function Home() {
       </div>
     );
   }
-}
-const SlotTile = (props) => (
-  <div>
-    <p> {props.emote}</p>
-    <style jsx>{`
-      p {
-        justify-content: center;
-        align-items: center;
-        font-family: neon;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-      }
-      div {
-        border-top: solid;
-        height: ${props.size};
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 3rem;
-      }
-    `}</style>
-  </div>
-);
-function CreatTiles() {
-  let elements = [
-    "100uscrt",
-    "200uscrt",
-    "300uscrt",
-    "400uscrt",
-    "500uscrt",
-    "600uscrt",
-    "700uscrt",
-    "800uscrt",
-    "900uscrt",
-    "1000uscrt",
-    "11000uscrt",
-    "100uscrt",
-    "200uscrt",
-    "300uscrt",
-    "400uscrt",
-    "500uscrt",
-    "600uscrt",
-    "700uscrt",
-    "800uscrt",
-    "900uscrt",
-    "1000uscrt",
-    "11000uscrt",
-  ];
-  let Slotarr = [];
-  for (let index = 0; index < 20; index++) {
-    Slotarr.push(<SlotTile size="100px" emote={elements[index]} key={index} />);
-  }
-  return Slotarr;
-}
-function shuffle([...arr]) {
-  let m = arr.length;
-  while (m) {
-    const i = Math.floor(Math.random() * m--);
-    [arr[m], arr[i]] = [arr[i], arr[m]];
-  }
-  return arr;
-}
-
-async function startslot(secretjs, entropy) {
-  console.log(entropy);
-  let tx = await secretjs.tx.compute.executeContract(
-    {
-      sender: secretjs.address,
-      contractAddress: contractAddress,
-      codeHash: codeHash,
-      msg: {
-        start_slot: {
-          entropy: entropy,
-        },
-      },
-      sentFunds: [
-        {
-          denom: "uscrt",
-          amount: "250",
-        },
-      ],
-    },
-    {
-      gasLimit: 100_000,
-    }
-  );
-  console.log(tx);
-  const result = tx.arrayLog.filter((elm) => elm.type == "transfer");
-  if (!result) {
-    return false;
-  }
-  return result[result.length - 1];
-}
-
-async function quary_win_table(secretjs) {
-  let quary = await secretjs.query.compute.queryContract({
-    contractAddress: contractAddress,
-    codeHash: codeHash,
-    query: { get_win_table: {} },
-  });
-  return quary;
 }

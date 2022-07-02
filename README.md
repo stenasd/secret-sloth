@@ -1,15 +1,16 @@
-
-doors -> door *3 filled with boxes
+doors -> door \*3 filled with boxes
 
 https://developer.mozilla.org/en-US/docs/Web/CSS/transition-duration
 https://bfanger.medium.com/styled-jsx-with-scss-in-next-js-5850dfc00449
 
 # todo
-> better icons
-> start screen with add contract adress
-> improve init and cancel contract when cant affourd to payout jackpott
 
+> better icons
+> organize into more files ex crypto stuff in 1 and components into one
+> change background color if lost or won
 # done
+
+> make losing look like random not matching
 > move element up so they can drop down
 > diffrent speeds to get more slotmachin look
 > animation handler that can start 2nd and 3d when done
@@ -21,7 +22,6 @@ https://bfanger.medium.com/styled-jsx-with-scss-in-next-js-5850dfc00449
 > display slot data
 > css
 > make all not only collum random
-
 
 <style jsx>{`
           h1{
@@ -61,3 +61,14 @@ https://bfanger.medium.com/styled-jsx-with-scss-in-next-js-5850dfc00449
               align-items: center;
           }
 `}</style>
+
+(3) [{…}, {…}, {…}]
+0: {msg: 0, type: 'transfer', key: 'recipient', value: 'secret18u73qrm0sz7pz5klznayzg8yypcsa8wkfcmh2c'}
+1: {msg: 0, type: 'transfer', key: 'sender', value: 'secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03'}
+2: {msg: 0, type: 'transfer', key: 'amount', value: '160uscrt'}
+length: 3
+[[Prototype]]: Array(0)
+
+
+
+secretjs.query.compute.contractsByCode()

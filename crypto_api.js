@@ -53,11 +53,13 @@ async function startslot(
  * Gets buyin and wintable from contract
  */
 async function quary_win_table(contractAddress, codeHash, secretjs) {
+  console.log(contractAddress);
   let quary = await secretjs.query.compute.queryContract({
     contractAddress: contractAddress,
     codeHash: codeHash,
     query: { get_win_table: {} },
   });
+  console.log(quary);
   return quary;
 }
 

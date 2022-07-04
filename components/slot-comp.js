@@ -1,10 +1,11 @@
 /** Single tile that gets made to an array */
 const SlotTile = (props) => (
   <div>
-    <p> {props.emote}</p>
+    <p>{props.emote}</p>
     <style jsx>{`
       p {
-        color: rgb(255, 0, 0);
+        //color: rgb(255, 0, 0);
+        color: ${props.win ? "green" : "red"};
         justify-content: center;
         align-items: center;
         font-family: neon;

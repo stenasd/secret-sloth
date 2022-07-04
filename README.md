@@ -6,10 +6,13 @@ https://bfanger.medium.com/styled-jsx-with-scss-in-next-js-5850dfc00449
 # todo
 
 > better icons
-> organize into more files ex crypto stuff in 1 and components into one
+> passfunction into css ${}
+
 > change background color if lost or won
+
 # done
 
+> organize into more files ex crypto stuff in 1 and components into one
 > make losing look like random not matching
 > move element up so they can drop down
 > diffrent speeds to get more slotmachin look
@@ -68,7 +71,5 @@ https://bfanger.medium.com/styled-jsx-with-scss-in-next-js-5850dfc00449
 2: {msg: 0, type: 'transfer', key: 'amount', value: '160uscrt'}
 length: 3
 [[Prototype]]: Array(0)
-
-
 
 secretjs.query.compute.contractsByCode()

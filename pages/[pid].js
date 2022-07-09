@@ -365,7 +365,7 @@ export default function Slot() {
         <main>
           <h1>
             Secret-Slot: No kepplr? follow instructions at
-            https://github.com/raskenstam/slot-front#tutorial
+            <a> https://github.com/raskenstam/slot-front#tutorial </a>
           </h1>
         </main>
       </div>

@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  nextjs:
+    ports:
+      - "3000:3000"
+    build: .
+    volumes:
+      - /app/node_modules
+      - /app/.next
+    restart: always
+    
+  frontend:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    depends_on:
+      - nextjs
+    restart: always

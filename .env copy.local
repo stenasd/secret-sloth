@@ -1,0 +1,5 @@
+NEXT_PUBLIC_ENV_GRPC = "https://grpc.pulsar.scrttestnet.com"
+NEXT_PUBLIC_ENV_RPC = "https://rpc.pulsar.testnet.com"
+NEXT_PUBLIC_ENV_REST="https://api.pulsar.scrttestnet.com"
+NEXT_PUBLIC_ENV_CHAINID = "pulsar-2"
+NEXT_PUBLIC_ENV_CODEID ="10274"

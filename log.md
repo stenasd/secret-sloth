@@ -6,11 +6,11 @@ https://bfanger.medium.com/styled-jsx-with-scss-in-next-js-5850dfc00449
 # todo
 
 > better icons
-> passfunction into css ${}
+> 
 >
 
 # done
-
+> passfunction into css ${}
 > change background color if lost or won
 > organize into more files ex crypto stuff in 1 and components into one
 > make losing look like random not matching
@@ -64,12 +64,3 @@ https://bfanger.medium.com/styled-jsx-with-scss-in-next-js-5850dfc00449
               align-items: center;
           }
 `}</style>
-
-(3) [{…}, {…}, {…}]
-0: {msg: 0, type: 'transfer', key: 'recipient', value: 'secret18u73qrm0sz7pz5klznayzg8yypcsa8wkfcmh2c'}
-1: {msg: 0, type: 'transfer', key: 'sender', value: 'secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03'}
-2: {msg: 0, type: 'transfer', key: 'amount', value: '160uscrt'}
-length: 3
-[[Prototype]]: Array(0)
-
-secretjs.query.compute.contractsByCode()

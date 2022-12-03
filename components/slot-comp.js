@@ -28,7 +28,8 @@ const SlotTile = (props) => (
 );
 /** Crates a array of tiles from provided wintable */
 function CreatTiles(win_table) {
-  let elements = win_table.win_table;
+  console.log(win_table);
+  let elements = win_table;
   let Slotarr = [];
   for (let index = 0; index < 20; index++) {
     Slotarr.push(<SlotTile size="100px" emote={elements[index]} key={index} />);
